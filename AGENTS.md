@@ -14,10 +14,22 @@ This repository holds population-derived priors/templates for Bayesian Brain Map
 
 ## Repository Structure
 
-- `demo/BBM-demo.Rmd` - Main tutorial/demo showcasing the full BBM workflow
+- `src/00_main.R` - Main entry point that runs the full reproducibility pipeline
+- `src/0_setup.R` - Configuration: package loading, paths, and analysis parameters
+- `src/1_fd_time_filtering.R` through `src/6_visualization_prior.R` - Pipeline scripts (run in order)
+- `src/manuscript/` - Figure generation scripts for the paper
+- `demo/BBM-demo.Rmd` - Tutorial/demo showcasing the BBM workflow
 - `demo/data/` - Directory for input/output data (requires download from OSF)
 
-## Running the Demo
+## Running the Analysis
+
+**Full pipeline:**
+```r
+# Edit paths in src/0_setup.R first, then:
+source("src/00_main.R")
+```
+
+**Demo only:**
 
 1. Download required data from [OSF](https://osf.io/k6vx8/files/osfstorage)
 2. Place `data_OSF/` and `priors/` folders in the project root
