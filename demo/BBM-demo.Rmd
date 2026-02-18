@@ -203,12 +203,17 @@ The Yeo17 parcellation divides the cortex into 17 functional networks.
 See [Appendix C](#appendix-parcellations) for details on how this parcellation was prepared.
 The `6_visualization_prior.R` script in `src/` loads each estimated prior file and plots both the mean and standard deviation.
 
+```{r model-overview, echo=FALSE, fig.align='center', message=TRUE, warning=TRUE, out.width="100%"}
+knitr::include_graphics(file.path(dir_data, "outputs/priors_plots/Yeo17/combined/noGSR/prior_combined_Yeo17_noGSR_DefaultA_mean.png"))
+knitr::include_graphics(file.path(dir_data, "outputs/priors_plots/Yeo17/combined/noGSR/prior_combined_Yeo17_noGSR_DefaultA_sd.png"))
+```
+
 ### Priors for Functional Connectivity
 
 The functional connectivity (FC) prior captures the expected correlation structure between networks.
 The `src/` folder contains visualization scripts for FC priors using both Cholesky and Inverse-Wishart parameterizations.
 
-This step visualizes the Functional Connectivity (FC) prior for each prior using both the Cholesky and Inverse-Wishart parameterizations.
+This step visualizes the Functional Connectivity (FC) prior using both the Cholesky and Inverse-Wishart parameterizations.
 For each group-level prior in `priors/`, we compute and plot:
 
 -   Mean FC matrix (off-diagonal values only)
@@ -249,7 +254,15 @@ Each PDF includes:
 
 These visualizations allow for a direct comparison of spatial FC structure and uncertainty across priors and estimation methods.
 
-The figures below show the mean and standard deviation of FC priors using Cholesky and Inverse-Wishart methods.Only combined priors are shown.
+The figures below show the mean and standard deviation of FC priors using Cholesky and Inverse-Wishart methods.
+Only combined priors are shown.
+
+```{r model-overview, echo=FALSE, fig.align='center', message=TRUE, warning=TRUE, out.width="100%"}
+knitr::include_graphics(file.path(dir_data, "outputs/priors_plots/Yeo17/combined/noGSR/FC/prior_combined_Yeo17_noGSR_FC_Cholesky_mean.png"))
+knitr::include_graphics(file.path(dir_data, "outputs/priors_plots/Yeo17/combined/noGSR/FC/prior_combined_Yeo17_noGSR_FC_Cholesky_sd.png"))
+knitr::include_graphics(file.path(dir_data, "outputs/priors_plots/Yeo17/combined/noGSR/FC/prior_combined_Yeo17_noGSR_FC_IW_mean.png"))
+knitr::include_graphics(file.path(dir_data, "outputs/priors_plots/Yeo17/combined/noGSR/FC/prior_combined_Yeo17_noGSR_FC_IW_sd.png"))
+```
 
 ## Using Priors for Individual-Level Brain Mapping
 
@@ -272,7 +285,7 @@ This example uses:
 
 ```{r warning=FALSE, eval=FALSE}
 # Load population prior 
-prior <- readRDS("priors/Yeo17/prior_combined_Yeo17_noGSR.rds")
+prior <- readRDS(file.path(dir_data, "priors/Yeo17/prior_combined_Yeo17_noGSR.rds"))
 
 # Load subject fMRI data (CIFTI format)
 BOLD_1 <- c(file.path(dir_data, "inputs", 
@@ -422,7 +435,6 @@ knitr::include_graphics(first_legend)
 knitr::include_graphics(second)
 knitr::include_graphics(second_legend)
 ```
-
 
 ## Appendix A: Subject Filtering {#appendix-subjectfiltering}
 
