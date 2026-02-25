@@ -2,10 +2,6 @@
 
 prior_files <- list.files(file.path(dir_project, "priors"), recursive = TRUE, full.names = TRUE)
 
-#prior_combined_Yeo17_noGSR.rds
-# prior_files <- prior_files[grepl("Yeo17", prior_files) & grepl("noGSR", prior_files)]
-#prior_files <- "~/Desktop/prior_combined_Yeo17_noGSR.rds"
-
 get_prior_title <- function(base_name, i, prior, encoding, gsr_status) {
 
   if (grepl("Yeo17", base_name, ignore.case = TRUE)) {

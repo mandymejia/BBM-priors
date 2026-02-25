@@ -2,8 +2,13 @@
 
 # Initialize libraries
 Sys.setenv(R_LIBS_USER='$R_LIBS_USER')
-# Set script directory
+################################################################
+#
+# SET THE LOCATION OF THE SCRIPT FILES
+#
+################################################################
 sourcedir = "~/Documents/GitHub/BayesianBrainMapping-priors/src"
+#sourcedir = "src"
 
 # Setup up dependencies and parameters
 source(file.path(sourcedir, "0_setup.R"))
@@ -67,11 +72,23 @@ for(encoding in encoding_sweep){
 # save RDS with performance tibble
 saveRDS(performance_tbl, file.path(dir_data, "outputs", "prior_estimation_timings.rds"))
 
-# End of priors estimation
-####################################################################################
+##### Begin presenting prior results ######
+# visualize prior maps
+source(file.path(sourcedir,"6_visualization_prior.R"))
 
-# Start individual fit_BBM
+# find best match IC to order FC matrices
+source(file.path(sourcedir,"7_best_match_IC.R"))
 
-source(file.path(sourcedir,"11_brainMap.R"))
-# Run BrainMap
-bMap = run_brainmap_for_subject(bold, prior, scrubbing = TRUE, smoothing = FALSE, output_dir = output_dir)
+# visualize FC matrices
+source(file.path(sourcedir,"8_visualization_FC.R"))
+
+# visualize matrices of IC overlap
+source(file.path(sourcedir,"9_dice_overlap.R"))
+
+##### Begin brain mapping of single HCP subject with Yeo17 priors ########
+
+source(file.path(sourcedir, "manuscript/manuscript_brainmap.R"))
+# make visualization of posterior FC estimate maps
+source(file.path(sourcedir, "manuscript/manuscript_brainmap_visualization.R"))
+
+
