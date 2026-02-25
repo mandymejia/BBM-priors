@@ -2,11 +2,11 @@
 
 # Initialize libraries
 Sys.setenv(R_LIBS_USER='$R_LIBS_USER')
-################################################################
+###############################################################
 #
 # SET THE LOCATION OF THE SCRIPT FILES
 #
-################################################################
+###############################################################
 sourcedir = "~/Documents/GitHub/BayesianBrainMapping-priors/src"
 #sourcedir = "src"
 
