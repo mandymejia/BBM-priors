@@ -23,11 +23,12 @@ library(tidyverse)       # version: 2.0.0
 library(purrr)           # version: 0.2.0
 
 # Set CIFTI Workbench path
-wb_path <- "~/Downloads/workbench"
+wb_path <- "/Applications/wb_view.app/Contents/usr/bin"
 ciftiTools.setOption("wb_path", wb_path) 
 
 # Set up paths
 #dir_HCP <- "/N/project/hcp_dcwan" # Location of HCP data
+<<<<<<< HEAD
 #dir_HCP <- "~/Documents/hcp_dcwan"
 #########################################################################
 #
@@ -41,6 +42,16 @@ dir_project <- "~/Documents/GitHub/BayesianBrainMapping-priors" # Path to GitHub
 
 dir_data <- file.path(dir_project, "data_OSF") # Path to data folder
 
+=======
+dir_HCP <- "~/Documents/hcp_dcwan"
+dir_project <- "~/Documents/GitHub/BBM-priors" # Path to GitHub folder
+
+dir_data <- file.path(dir_project, "data_OSF") # Path to data folder
+
+# Bring your own HCP access for both restricted and unrestricted data
+dir_HCP_demo <- "~/Documents/GitHub/BBM-priors/data_OSF/inputs/HCP_demo" # Path to folder with HCP demographics CSVs
+
+>>>>>>> 52c59c9 (add brain map and engagement 1 session)
 # HCP_unrestricted_fname <- file.path(dir_data, "inputs", "unrestricted_HCP_demographics.csv")
 HCP_restricted_fname <- file.path(dir_HCP, "restricted_HCP.csv")
 # TEST PURPOSES ONLY TRYING WITH RESTRICTED DEMEOGRAPHICS

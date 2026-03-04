@@ -286,7 +286,7 @@ This example uses:
 ```{r warning=FALSE, eval=FALSE}
 # Load population prior 
 prior <- readRDS(file.path(dir_data, "priors/Yeo17/prior_combined_Yeo17_noGSR.rds"))
-
+dir_train <- "/Users/saigerutherford/Downloads/osfstorage-archive 3/data_OSF/inputs/"
 # Load subject fMRI data (CIFTI format)
 BOLD_1 <- c(file.path(dir_train, 
                     "rfMRI_REST1_LR_Atlas_MSMAll_hp2000_clean.dtseries.nii"))
@@ -312,7 +312,7 @@ bMap_1 <- fit_BBM(
 ```
 
 ```{r,eval=FALSE, echo=FALSE}
-saveRDS(bMap_1, file.path(dir_data, "outputs", "brain_map", "Yeo17", "single_session", "brainMap_1session.rds"))
+saveRDS(bMap_1, file.path(dir_data, "outputs", "brain_map", "Yeo17", "brainMap_1session.rds"))
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -337,10 +337,6 @@ for (i in 1:17) {
 }
 ```
 
-```{r,eval=FALSE}
-# TODO: plotting code for each one interactive (total 4)
-```
-
 ```{r fig.show='hold', out.width='25%', echo=FALSE}
 p_mean_1 <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "single_session", "posterior_Yeo17_DefaultA_mean.png")
 p_se_1   <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "single_session", "posterior_Yeo17_DefaultA_se.png")
@@ -362,26 +358,26 @@ First, we compute engagements from the four-session brain map,
 -   `method_p = 'bonferroni'`
 
 ```{r,eval=FALSE, echo=FALSE}
-bMap_4 <- readRDS(file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions", "brainMap_4sessions.rds"))
+bMap_1 <- readRDS(file.path(dir_data, "outputs", "brain_map", "Yeo17", "brainMap_1session.rds"))
 ```
 
 ```{r warning=FALSE, eval=FALSE}
 eng <- engagements(
-  bMap = bMap_4,
+  bMap = bMap_1,
   method_p = 'bonferroni',
   z=5
   )
 ```
 
 ```{r,eval=FALSE, echo=FALSE}
-saveRDS(eng, file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions", "engagements_4sessions.rds"))
+saveRDS(eng, file.path(dir_data, "outputs", "brain_map", "Yeo17", "engagements_1session.rds"))
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
 for (i in 1:17) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
   title <- paste0("Yeo 17 ", label_name, " Engagements")  
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions",
+  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17",
                      paste0("default_subject_Yeo17_", label_name))
   plot(eng, idx = i, stat = "engaged", title = title,
      fname_suffix="idx", fname=fname) 
@@ -392,7 +388,7 @@ for (i in 1:17) {
 for (i in 1:17) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
   title <- paste0("Yeo 17 ", label_name, " Thresholded Map (z=2)")  
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions",
+  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17",
                      paste0("default_thresholded_subject_Yeo17_", label_name))
   plot(eng, idx = i, stat = "engaged", title = title,
      fname_suffix="idx", fname=fname) 
@@ -403,21 +399,21 @@ Second, we compute engagements with z = 1,3,5 while keeping all other parameters
 
 ```{r warning=FALSE, eval=FALSE}
 eng_multipleZ <- engagements(
-  bMap = bMap_4,
+  bMap = bMap_1,
   method_p = 'bonferroni',
   z = c(1,5)
   )
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
-saveRDS(eng_multipleZ, file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions", "engagements_4sessions_multipleZ.rds"))
+saveRDS(eng_multipleZ, file.path(dir_data, "outputs", "brain_map", "Yeo17",  "engagements_1session_multipleZ.rds"))
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
 for (i in 1:17) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
   title <- paste0("Yeo 17 ", label_name, " Engagements")  
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions",
+  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17",
                      paste0("subject_Yeo17_", label_name))
   plot(eng_multipleZ, idx = i, stat = "engaged", title = title,
      fname_suffix="idx", fname=fname) 
@@ -425,11 +421,11 @@ for (i in 1:17) {
 ```
 
 ```{r fig.show='hold', out.width=c('36%','12%','36%','12%'), echo=FALSE}
-first <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions", "default_subject_Yeo17_DefaultA_engaged.png")
-second   <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions", "subject_Yeo17_DefaultA_engaged.png")
+first <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "default_subject_Yeo17_DefaultA_engaged.png")
+second   <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "subject_Yeo17_DefaultA_engaged.png")
 
-first_legend <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions", "default_subject_Yeo17_DefaultA_engaged_legend.png")
-second_legend <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "four_sessions", "subject_Yeo17_DefaultA_engaged_legend.png")
+first_legend <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "default_subject_Yeo17_DefaultA_engaged_legend.png")
+second_legend <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "subject_Yeo17_DefaultA_engaged_legend.png")
 
 knitr::include_graphics(first)
 knitr::include_graphics(first_legend)
