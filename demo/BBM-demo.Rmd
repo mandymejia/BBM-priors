@@ -47,13 +47,13 @@ knitr::include_graphics(file.path(dir_data, "inputs/Figure1.png"))
 To reproduce this workflow, first clone the repository to your local machine or cluster:
 
 ```{bash eval=FALSE}
-git clone https://github.com/mandymejia/BBM-priors.git
+git clone https://github.com/mandymejia/BBM-priors.git # if you are running this file, you have already done this step
 cd BBM-priors/
 ```
 
 This GitHub repository contains the priors for the Yeo17 parcellation.
 If you wish to use another parcellation (i.e., GICA, MSC, PROFUMO) they can be downloaded from [OSF](https://osf.io/k6vx8/files/osfstorage).
-Once you have downloaded additional priors from OSF, they should be moved into the `priors/` folder to match the structure shown below.
+Once you have downloaded additional priors from OSF, they should be moved into the `priors/` folder within the data `folder/` to match the structure shown below.
 
 The folder structure should look like this:
 
@@ -61,10 +61,10 @@ The folder structure should look like this:
 BBM-priors/
 ├── data/
 │   ├── inputs/
-│   └── outputs/
-├── priors/
-│   ├── Yeo17/
-│   └── ...
+│   ├── outputs/
+│   └── priors/
+│       └────  Yeo17/
+│       └────  ...
 ├── src/
 │   ├── 0_setup.R
 │   ├── 1_fd_time_filtering.R
@@ -90,7 +90,7 @@ This section initializes the environment by loading required packages, setting a
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=FALSE}
 github_repo_dir <- getwd()
-src_dir <- file.path(github_repo_dir, "src")
+src_dir <- file.path(github_repo_dir, "../src")
 source(file.path(src_dir, "0_setup.R"))
 ```
 
@@ -195,6 +195,10 @@ We also visualize the functional connectivity prior.
 First, we load the pre-estimated prior that will be used for visualization and model fitting:
 
 ```{r load-prior, eval=FALSE}
+
+# define dir_data
+dir_data <- file.path(github_repo_dir, "data")
+
 prior <- readRDS(file.path(dir_data, "priors/Yeo17/prior_combined_Yeo17_noGSR.rds"))
 ```
 
