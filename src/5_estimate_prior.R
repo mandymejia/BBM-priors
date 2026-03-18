@@ -53,7 +53,7 @@ estimate_and_export_prior <- function(
     }
     
     gsr_label <- ifelse(GSR, "GSR", "noGSR")
-    save_dir <- file.path(dir_project, "priors", parcellation)
+    save_dir <- file.path(dir_data, "priors", parcellation, gsr_label)
     if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
 
     cat(sprintf("Estimating prior for encoding: %s , parcellation: %s , %s, Using %s threads\n",encoding, parcellation, gsr_label, as.character(usePar)))
@@ -120,7 +120,7 @@ estimate_and_export_prior <- function(
     # Yeo17 parcellation
     if (nIC == 0) {
 
-        GICA <- readRDS(file.path(dir_data, "outputs", "Yeo17_simplified_mwall.rds"))
+        GICA <- readRDS(file.path(dir_data, "inputs", "Yeo17_simplified_mwall.rds"))
 
         # Include certain ICs (1:17 not 0 or -1 -> medial wall)
         valid_keys <- GICA$meta$cifti$labels[[1]]$Key
@@ -152,7 +152,7 @@ estimate_and_export_prior <- function(
     # MSC
     } else if (nIC == 1) {
 
-        GICA <- readRDS(file.path(dir_data, "outputs", "MSC_parcellation.rds"))
+        GICA <- readRDS(file.path(dir_data, "inputs", "MSC_parcellation.rds"))
 
         prior <- estimate_prior(
                 BOLD = BOLD_paths1,
@@ -177,7 +177,7 @@ estimate_and_export_prior <- function(
     # PROFUMO
     } else if (nIC == 2) {
 
-        PROFUMO <- readRDS(file.path(dir_data, "outputs", "PROFUMO_simplified_mwall.rds"))
+        PROFUMO <- readRDS(file.path(dir_data, "inputs", "PROFUMO_simplified_mwall.rds"))
 
         prior <- estimate_prior(
                 BOLD = BOLD_paths1,
@@ -197,7 +197,7 @@ estimate_and_export_prior <- function(
             )
 
         # Save file
-        save_dir <- file.path(dir_project, "priors", "PROFUMO")
+        save_dir <- file.path(dir_data, "priors", "PROFUMO")
         if (!dir.exists(save_dir)) dir.create(save_dir, recursive = TRUE)
         saveRDS(prior, file.path(save_dir, sprintf("prior_%s_PROFUMO_%s.rds", encoding, gsr_label)))
 
