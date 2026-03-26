@@ -24,6 +24,8 @@ library(BayesBrainMap)
 library(ciftiTools)
 wb_path <- "C:/Users/diego/Downloads/workbench-windows64-v2.1.0/workbench/bin_windows64"
 ciftiTools.setOption("wb_path", wb_path)
+#library(osfr)
+#osf_repo <- osf_retrieve_node("k6vx8")
 
 # setup environment
 dir_project <- file.path(getwd(), "..") # Path to GitHub folder
@@ -43,7 +45,7 @@ The code shown within this demo is intended for learning purposes, and is not in
 However, we do provide instructions for running all steps yourself and the goal is to teach you how to do so.
 
 ```{r model-overview, echo=FALSE, fig.align='center', fig.cap="Overview of Bayesian Brain Mapping. The two main steps are (1) prior estimation and (2) model fitting.", message=TRUE, warning=TRUE, out.width="100%"}
-knitr::include_graphics(file.path(dir_manuscript, "Figure1.png"))
+knitr::include_graphics(file.path(dir_manuscript, "Figure1", "Figure1.png"))
 ```
 
 ## Setup
@@ -200,9 +202,13 @@ In this section, we visualize the Yeo17 template and the pre-estimated prior map
 We also visualize the functional connectivity prior.
 
 First, we load the pre-estimated prior that will be used for visualization and model fitting.
-This file is included in the repository under `data/priors/Yeo17/` and can be loaded directly — no need to re-run `estimate_prior()`:
+This file is included in the *data_OSF* repository under `priors/Yeo17/` and can be loaded after downloading from OSF — no need to re-run `estimate_prior()`:
 
-```{r load-prior, eval=TRUE}
+```{r load-prior, eval=FALSE}
+# download the prior from OSF and place it in data/priors/Yeo17/ before running this code
+osf_url <- "https://osf.io/k6vx8/files/u2r6e"
+prior_download <- osf_download(osf_retrieve_file(osf_url), path = file.path(dir_data, "priors/Yeo17/noGSR"))
+
 prior <- readRDS(file.path(dir_data, "priors/Yeo17/noGSR/prior_combined_Yeo17_noGSR.rds"))
 ```
 
@@ -336,9 +342,13 @@ bMap_1 <- fit_BBM(
 saveRDS(bMap_1, file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "sub-103111_BBM.rds"))
 ```
 
-Or load the pre-computed brain map included in the repository:
+Or load the pre-computed brain map included in the *data_OSF* repository:
 
-```{r load-brainmap, eval=TRUE, echo=TRUE}
+```{r load-brainmap, eval=FALSE, echo=TRUE}
+# download the prior from OSF and place it in data/priors/Yeo17/ before running this code
+osf_url <- "https://osf.io/k6vx8/files/qswaz"
+posterior_download <- osf_download(osf_retrieve_file(osf_url), path = file.path(dir_data, "posteriors", "sub-103111", "Yeo17"))
+
 bMap_1 <- readRDS(file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "sub-103111_BBM.rds"))
 ```
 
@@ -346,7 +356,7 @@ bMap_1 <- readRDS(file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "sub-
 for (i in 1:17) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
   title <- paste0("Yeo 17 ", label_name, " Mean (1 session)") 
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "single_session",
+  fname <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
                      paste0("posterior_Yeo17_", label_name))
   plot(bMap_1, idx = i, stat = "mean", title = title,
      fname_suffix="idx", fname=fname, zlim=c(-0.3, 0.3)) 
@@ -357,7 +367,7 @@ for (i in 1:17) {
 for (i in 1:17) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
   title <- paste0("Yeo 17 ", label_name, " SE (1 session)")  
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "single_session",
+  fname <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
                      paste0("posterior_Yeo17_", label_name))
   plot(bMap_1, idx = i, stat = "se", title = title,
      fname_suffix="idx", fname=fname, zlim=c(0.015, 0.023)) 
@@ -365,8 +375,10 @@ for (i in 1:17) {
 ```
 
 ```{r fig.show='hold', out.width='50%', echo=FALSE}
-p_mean_1 <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "single_session", "posterior_Yeo17_DefaultA_mean.png")
-p_se_1   <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "single_session", "posterior_Yeo17_DefaultA_se.png")
+p_mean_1 <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
+                     "posterior_Yeo17_DefaultA_mean.png")
+p_se_1   <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
+                     "posterior_Yeo17_DefaultA_se.png")
 
 knitr::include_graphics(p_mean_1)
 knitr::include_graphics(p_se_1)
@@ -402,7 +414,7 @@ saveRDS(eng, file.path(dir_data, "outputs", "brain_map", "Yeo17", "engagements_1
 Or load the pre-computed engagement map included in the repository:
 
 ```{r load-eng, eval=TRUE, echo=TRUE}
-eng <- readRDS(file.path(dir_data, "outputs", "brain_map", "Yeo17", "engagements_1session.rds"))
+eng <- readRDS(file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagements_1session.rds"))
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -447,7 +459,7 @@ saveRDS(eng_multipleZ, file.path(dir_data, "outputs", "brain_map", "Yeo17", "eng
 Or load the pre-computed multiple-z engagement maps included in the repository:
 
 ```{r load-eng-multipleZ, eval=TRUE, echo=TRUE}
-eng_multipleZ <- readRDS(file.path(dir_data, "outputs", "brain_map", "Yeo17", "engagements_1session_multipleZ.rds"))
+eng_multipleZ <- readRDS(file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagements_1session_multipleZ.rds"))
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
@@ -462,11 +474,11 @@ for (i in 1:17) {
 ```
 
 ```{r fig.show='hold', out.width=c('36%','12%','36%','12%'), echo=FALSE}
-first <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "default_subject_Yeo17_DefaultA_engaged.png")
-second   <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "subject_Yeo17_DefaultA_engaged.png")
+first <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "default_subject_Yeo17_DefaultA_engaged.png")
+second   <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "subject_Yeo17_DefaultA_engaged.png")
 
-first_legend <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "default_subject_Yeo17_DefaultA_engaged_legend.png")
-second_legend <- file.path(dir_data, "outputs", "brain_map", "Yeo17", "subject_Yeo17_DefaultA_engaged_legend.png")
+first_legend <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "default_subject_Yeo17_DefaultA_engaged_legend.png")
+second_legend <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "subject_Yeo17_DefaultA_engaged.png")
 
 knitr::include_graphics(first)
 knitr::include_graphics(first_legend)
@@ -522,7 +534,7 @@ During this step, an FD summary table is generated with the following columns:
 #### Preview of FD Summary Table
 
 ```{r results='asis', echo=FALSE}
-fd_summary <- read.csv(file.path(dir_data, "outputs", "filtering", "fd_summary.csv"))
+fd_summary <- read.csv(file.path(dir_data, "priors", "filtering", "fd_summary.csv"))
 
 kable(fd_summary[1:4, ]) %>%
   kable_styling(full_width = FALSE, position = "center")
@@ -661,12 +673,12 @@ view_xifti_surface(
 ```
 
 ```{r, echo=FALSE, out.width="60%", fig.align="center"}
-knitr::include_graphics(file.path(dir_data, "outputs", "parcellations_plots", "Yeo17", "Yeo17.png"))
+knitr::include_graphics(file.path(dir_data, "templates", "parcellations_plots", "Yeo17", "Yeo17.png"))
 ```
 
 ```{r, echo=FALSE, out.width="80%", fig.align="center"}
 # Show legend
-knitr::include_graphics(file.path(dir_data, "outputs", "parcellations_plots", "Yeo17", "Yeo17_legend.png"))
+knitr::include_graphics(file.path(dir_data, "templates", "parcellations_plots", "Yeo17", "Yeo17_legend.png"))
 ```
 
 ## Appendix D: Example Function Call for Prior Estimation {#appendix-example}
