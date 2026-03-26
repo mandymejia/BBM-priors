@@ -30,7 +30,7 @@ See [this link](https://htmlpreview.github.io/?https://github.com/mandymejia/BBM
 
 **Full pipeline:**
 
-To run the full pipeline, including prior estimation, you will need access to the HCP and the templates available in `data/inputs`. Alternative, you can download and see the pre-estimated priors from the Open Science Foundation [repository](https://osf.io/k6vx8/files/osfstorage). 
+To run the full pipeline, including prior estimation, you will need access to the HCP and the templates available in `data/templates`. Alternative, you can download and see the pre-estimated priors from the Open Science Foundation [repository](https://osf.io/k6vx8/files/osfstorage). 
 
 ```r
 # BEFORE RUNNING: you will need to bring your own HCP access, modify dir_hcp path in src/0_setup.R accordingly.
@@ -49,6 +49,17 @@ git clone git@github.com:mandymejia/BBM-priors.git
 # Render the demo
 rmarkdown::render("demo/BBM-demo.Rmd")
 ```
+
+**Reproduce Demo analsysis:**
+
+The demo can be fully reproduced without having to estimate population priors. To accomplish this, Yeo17 priors and subject-level results for a single HCP subject need to be downloaded from OSF. The R package `osfr` is needed to fetch the files.
+
+```r
+# Install osfr library
+install.packages("osfr")
+```
+
+Additionally, the corresponding snippets need to be evaluated. This can be achieved by toggling `eval=TRUE` in lines 207 and 347. 
 
 ## BayesBrainMap Package Usage
 
