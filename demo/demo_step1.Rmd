@@ -460,19 +460,18 @@ view_xifti_surface(
   widget = TRUE,
   title = "Yeo17 Network Parcellation",
   legend_ncol = 6,
-  legend_fname = file.path(dir_data, "outputs", "parcellations_plots", 
-                           "Yeo17", "Yeo17_legend.png"),
+  legend_fname = file.path(dir_manuscript, "parcellations_plots", "Yeo17", "Yeo17_legend.png"),
   fname=file.path(dir_data, "outputs", "parcellations_plots", "Yeo17")
 )
 ```
 
 ```{r, echo=FALSE, out.width="60%", fig.align="center"}
-knitr::include_graphics(file.path(dir_data, "templates", "parcellations_plots", "Yeo17", "Yeo17.png"))
+knitr::include_graphics(file.path(dir_manuscript, "parcellations_plots", "Yeo17", "Yeo17.png"))
 ```
 
 ```{r, echo=FALSE, out.width="80%", fig.align="center"}
 # Show legend
-knitr::include_graphics(file.path(dir_data, "templates", "parcellations_plots", "Yeo17", "Yeo17_legend.png"))
+knitr::include_graphics(file.path(dir_manuscript, "parcellations_plots", "Yeo17", "Yeo17_legend.png"))
 ```
 
 ## Appendix D: Example Function Call for Prior Estimation {#appendix-example}
