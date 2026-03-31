@@ -7,7 +7,7 @@ It accompanies the manuscript **Bayesian brain mapping: population-informed indi
 
 Population-derived priors and supporting data used in this study are publicly available through the Open Science Framework (OSF): https://osf.io/k6vx8/files/osfstorage
 
-## Vignette/Demo
+## Vignette/Demo<a name="demo-header"></a>
 
 - Step 1: [**Population priors**](https://htmlpreview.github.io/?https://github.com/mandymejia/BBM-priors/refs/heads/main/demo/demo_step1.html). Usage of `estimate_prior()` and manipulations of priors.
 
@@ -22,23 +22,20 @@ Population-derived priors and supporting data used in this study are publicly av
 
 ## Repository Structure
 
-- `src/00_main.R` - Main entry point that runs the full reproducibility pipeline
-- `src/0_setup.R` - Configuration: package loading, paths, and analysis parameters
-- `src/1_fd_time_filtering.R` through `src/6_visualization_prior.R` - Pipeline scripts (run in order)
-- `src/manuscript/` - Figure generation scripts for the paper
-- `demo/demo_step1.Rmd` - Tutorial/demo showcasing `estimate_prior()` workflow
-- `demo/BBM_step2.Rmd` - Tutorial/demo the `fit_BBM()` workflow to fit subject-level data
-- `data/` - Directory for input/output data 
+- `src/` - Contains all the scripts necessary to reproduce and customize the pipeline.
+- `src/manuscript/` - Figure generation scripts for the paper.
+
+- `demo/` - Tutorial/demos showcasing different aspects of the pipeline. They can be modified to customize and reproduce the pipeline step-by-step.
+
+- `data/` - Directory for input/output data. When OSF data is required, it will be downloaded here.
 
 ## Running the Analysis
 
 To make the package more approachable, we provide different ways of approaching this repository, based on the level of depth and customabilization you need.
 
-**View Demo:**
+**1. View Demo** The [generated htmls](#demo-header) provide a complete overview of each stage of the pipeline
 
-Just see the rendered Demo [here](https://htmlpreview.github.io/?https://github.com/mandymejia/BBM-priors/refs/heads/main/demo/BBM-demo.html).
-
-**Reproduce Demo analsysis:**
+**2. Reproduce Demo analsysis:**
 
 The demo can be fully reproduced without having to estimate population priors and changed. To accomplish this, Yeo17 priors and subject-level results for a single HCP subject are programmaticaly downloaded from OSF using the `osfr` R package.
 
@@ -47,25 +44,20 @@ The demo can be fully reproduced without having to estimate population priors an
 install.packages("osfr")
 ```
 
-```r
-# Render the demo
-rmarkdown::render("demo/BBM-demo.Rmd")
-```
+Then, individual snippets can be evaluated. This can be achieved by toggling each snippet to `eval=TRUE`, graphically on RStudio.
 
-Additionally, the corresponding snippets need to be evaluated. This can be achieved by toggling `eval=TRUE` in lines 207 and 347. 
-
-**Full pipeline:**
+**3. Full pipeline**
 
 To run the full pipeline, including prior estimation, you will need access to the HCP and the templates available in `data/templates`. Alternative, you can download and see the pre-estimated priors from the Open Science Foundation [repository](https://osf.io/k6vx8/files/osfstorage). 
 
 ```r
-# BEFORE RUNNING: you will need to bring your own HCP access, modify dir_hcp path in src/0_setup.R accordingly.
+# BEFORE RUNNING: you will need to bring your own HCP access, modify dir_hcp path in src/setup.R accordingly.
 source("src/00_main.R")
 ```
 
 Without HCP access, you can still obtain the estimated priors and reproduce most article results. Estimated templates are publicly available in `data_OSF`. To run the pipeline,`data_OSF` is expected in the root directory. All raw outputs will be written within the `outputs` subfolder.
 
-## BayesBrainMap Package Usage
+# General BayesBrainMap Package Usage
 
 The demo uses two main functions from `BayesBrainMap`:
 
