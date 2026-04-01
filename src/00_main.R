@@ -11,7 +11,7 @@ sourcedir = file.path(dir_project, "src")
 #sourcedir = "src"
 
 # Setup up dependencies and parameters
-source(file.path(sourcedir, "00_setup.R"))
+source(file.path(sourcedir, "setup.R"))
 
 # Run framewise displacement filtering 
 source(file.path(sourcedir, "01_fd_time_filtering.R"))

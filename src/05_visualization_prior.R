@@ -41,17 +41,16 @@ for (file in prior_files) {
   for (i in 1:Q) {
     if (grepl("Yeo17", base_name, ignore.case = TRUE)) {
       label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]  
-      fname <- file.path(dir_data, "outputs", "priors_plots", parcellation, encoding, gsr_status, paste0(base_name, "_", label_name))
+      fname <- file.path(dir_data, "priors", parcellation, "priors_plots", paste0(base_name, "_", label_name))
     } else if (grepl("MSC", base_name, ignore.case = TRUE)) {
       label_name <- rownames(prior$template_parc_table)[i]
-      fname <- file.path(dir_data, "outputs", "priors_plots", parcellation, encoding, gsr_status,
-                         paste0(base_name, "_", label_name))
+      fname <- file.path(dir_data, "priors", parcellation, "priors_plots", paste0(base_name, "_", label_name))
     } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
       # label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i-1]  
-      fname <- file.path(dir_data, "outputs", "priors_plots", parcellation, encoding, gsr_status, paste0(base_name, "_", i))
+      fname <- file.path(dir_data, "priors", parcellation, "priors_plots", paste0(base_name, "_", i))
       print(fname)
-    } else {
-      fname <- file.path(dir_data, "outputs", "priors_plots",  parcellation, encoding, gsr_status, paste0(base_name, "_IC", i))
+    } else {  
+      fname <- file.path(dir_data, "priors", parcellation, "priors_plots",  paste0(base_name, "_IC", i))
     }
 
     outdir <- dirname(fname)

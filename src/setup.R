@@ -44,7 +44,6 @@ dir_data <- file.path(dir_project, "data") # Path to data folder
 # Bring your own HCP access for both restricted and unrestricted data
 dir_HCP <- "~/Documents/GitHub/BBM-priors/data/HCP_demo" # Path to folder with HCP demographics CSVs
 
-# HCP_unrestricted_fname <- file.path(dir_data, "inputs", "unrestricted_HCP_demographics.csv")
 HCP_restricted_fname <- file.path(dir_HCP, "restricted_HCP.csv")
 # TEST PURPOSES ONLY TRYING WITH RESTRICTED DEMEOGRAPHICS
 HCP_unrestricted_fname <- file.path(dir_HCP, "restricted_HCP_demographics.csv")

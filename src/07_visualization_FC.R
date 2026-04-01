@@ -14,7 +14,7 @@ library(ggplot2)
 
 prior_files <- list.files(file.path(dir_data, "priors"), recursive = TRUE, full.names = TRUE)
 
-source(file.path(dir_project, "src", "7_best_match_IC.R"))
+source(file.path(dir_project, "src", "06_best_match_IC.R"))
 
 get_prior_title <- function(base_name, encoding) {
   gsr <- if (grepl("noGSR", base_name)) "noGSR" else "GSR"
