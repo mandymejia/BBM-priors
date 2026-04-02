@@ -37,14 +37,14 @@ To make the package more approachable, we provide different ways of approaching 
 
 **2. Reproduce Demo analsysis:**
 
-The demo can be fully reproduced without having to estimate population priors and changed. To accomplish this, Yeo17 priors and subject-level results for a single HCP subject are programmaticaly downloaded from OSF using the `osfr` R package.
+The demo can be fully reproduced without having to estimate population priors. To accomplish this, Yeo17 priors and subject-level results for a single HCP subject are programmaticaly downloaded from OSF using the `osfr` R package.
 
 ```r
 # Install osfr library
 install.packages("osfr")
 ```
 
-Then, individual snippets can be evaluated. This can be achieved by toggling each snippet to `eval=TRUE`, graphically on RStudio.
+Then, individual snippets can be evaluated. This can be achieved by toggling each snippet to `eval=TRUE`, or graphically in RStudio.
 
 **3. Full pipeline**
 
