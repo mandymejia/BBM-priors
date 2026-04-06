@@ -33,10 +33,44 @@ get_prior_title <- function(base_name, encoding) {
   paste0("GICA ", nIC, " ", gsr)
 }
 
+plot_fc_all <- function(template, encoding, labs, out_dir, plot_title, base_name) {
+  FC <- template$prior$FC
+
+  legend_theme <- theme(
+    legend.title = element_blank(),
+    legend.text  = element_text(size = 14),
+    legend.key.height = unit(2, "cm"),
+    legend.key.width  = unit(0.6, "cm")
+  )
+
+  plots <- list(
+    list(mat = FC$Chol$mean,            lim = c(-0.8, 0.8), suffix = "Cholesky_mean",  title = paste0(plot_title, " Cholesky FC Prior Mean")),
+    list(mat = sqrt(FC$Chol$var),       lim = c(0,    0.4), suffix = "Cholesky_sd",    title = paste0(plot_title, " Cholesky FC Prior SD")),
+    list(mat = FC$IW$mean,              lim = c(-0.8, 0.8), suffix = "IW_mean",        title = paste0(plot_title, " Inverse-Wishart FC Prior Mean")),
+    list(mat = sqrt(FC$IW$var),         lim = c(0,    0.4), suffix = "IW_sd",          title = paste0(plot_title, " Inverse-Wishart FC Prior SD")),
+    list(mat = FC$empirical$mean,       lim = c(-0.8, 0.8), suffix = "Empirical_mean", title = paste0(plot_title, " Empirical FC Prior Mean")),
+    list(mat = sqrt(FC$empirical$var),  lim = c(0,    0.4), suffix = "Empirical_sd",   title = paste0(plot_title, " Empirical FC Prior SD"))
+  )
+
+  for (p in plots) {
+    plt <- plot_FC_gg(
+      p$mat,
+      labs          = labs,
+      lim           = p$lim,
+      labs_margin_y = -10,
+      title         = p$title
+    ) + legend_theme
+    ggplot2::ggsave(
+      file.path(out_dir, paste0(base_name, "_FC_", p$suffix, ".png")),
+      plot = plt, bg = "white"
+    )
+  }
+}
+
 for (file in prior_files) {
     cat("Processing prior:", file, "\n")
     prior <- readRDS(file)
-    
+
     base_name <- tools::file_path_sans_ext(basename(file))
 
     cat("Processing prior:", base_name, "\n")
@@ -47,24 +81,21 @@ for (file in prior_files) {
       name = "Yeo17"
     } else if (grepl("MSC", base_name, ignore.case = TRUE)) {
       # change FC dim
-      prior$prior$FC$Chol$mean <- prior$prior$FC$Chol$mean[2:18, 2:18, drop=FALSE]
-      prior$prior$FC$Chol$var  <- prior$prior$FC$Chol$var[2:18, 2:18, drop=FALSE]
-      prior$prior$FC$IW$mean <- prior$prior$FC$IW$mean[2:18, 2:18, drop=FALSE]
-      prior$prior$FC$IW$var  <- prior$prior$FC$IW$var[2:18, 2:18, drop=FALSE]
-      prior$prior$FC$empirical$mean <- prior$prior$FC$empirical$mean[2:18, 2:18, drop=FALSE]
-      prior$prior$FC$empirical$var  <- prior$prior$FC$empirical$var[2:18, 2:18, drop=FALSE]
+      prior$prior$FC$Chol$mean       <- prior$prior$FC$Chol$mean[2:18, 2:18, drop=FALSE]
+      prior$prior$FC$Chol$var        <- prior$prior$FC$Chol$var[2:18, 2:18, drop=FALSE]
+      prior$prior$FC$IW$mean         <- prior$prior$FC$IW$mean[2:18, 2:18, drop=FALSE]
+      prior$prior$FC$IW$var          <- prior$prior$FC$IW$var[2:18, 2:18, drop=FALSE]
+      prior$prior$FC$empirical$mean  <- prior$prior$FC$empirical$mean[2:18, 2:18, drop=FALSE]
+      prior$prior$FC$empirical$var   <- prior$prior$FC$empirical$var[2:18, 2:18, drop=FALSE]
       labs <- rownames(prior$template_parc_table)[prior$template_parc_table$Key > 0]
       name = "MSC"
-      # get rid of IC 1
-      #order[[name]]$ic_order = order[[name]]$ic_order[!(order[[name]]$ic_order %in% c(1))]
-      #order[[name]]$ic_order =- 1
     } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
       labs <- paste0("Network ", 1:12)
       name = "PROFUMO"
     } else {
       labs <- paste0("IC", 1:dim(prior$prior$mean)[2])
     }
-    
+
     if (grepl("GICA15", base_name, ignore.case = TRUE)) {
       name = "GICA15"
     } else if (grepl("GICA25", base_name, ignore.case = TRUE)) {
@@ -72,139 +103,28 @@ for (file in prior_files) {
     }
 
     parts <- strsplit(base_name, "_")[[1]]
-    encoding <- parts[2]      
-    parcellation <- parts[3]   
-    gsr_status <- parts[4]  
+    encoding    <- parts[2]
+    parcellation <- parts[3]
+    gsr_status  <- parts[4]
 
     out_dir <- file.path(dir_data, "priors", parcellation, "plots_FC")
     cat("out_dir:", out_dir, "\n")
     dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-    # Number of ICs
-    Q <- dim(prior$prior$mean)[2]
     plot_title <- get_prior_title(base_name, encoding)
-    
+
     ###############################################################
-    # Start reordering ICs to match Yeo's canonical order
-    ##############################################################
-    
-    # make order to match Yeo 17 (from 12_best_match_IC.R)
+    # Reorder ICs to match Yeo's canonical order (from 06_best_match_IC.R)
+    ###############################################################
     labs <- labs[order[[name]]$ic_order]
-    prior$prior$FC$Chol$mean = prior$prior$FC$Chol$mean[order[[name]]$ic_order, order[[name]]$ic_order]
-    prior$prior$FC$IW$mean = prior$prior$FC$IW$mean[order[[name]]$ic_order, order[[name]]$ic_order]
-    prior$prior$FC$empirical$mean = prior$prior$FC$empirical$mean[order[[name]]$ic_order, order[[name]]$ic_order]
-    prior$prior$FC$Chol$var = prior$prior$FC$Chol$var[order[[name]]$ic_order, order[[name]]$ic_order]
-    prior$prior$FC$IW$var = prior$prior$FC$IW$var[order[[name]]$ic_order, order[[name]]$ic_order]
-    prior$prior$FC$empirical$var = prior$prior$FC$empirical$var[order[[name]]$ic_order, order[[name]]$ic_order]
+    prior$prior$FC$Chol$mean      <- prior$prior$FC$Chol$mean[order[[name]]$ic_order, order[[name]]$ic_order]
+    prior$prior$FC$IW$mean        <- prior$prior$FC$IW$mean[order[[name]]$ic_order, order[[name]]$ic_order]
+    prior$prior$FC$empirical$mean <- prior$prior$FC$empirical$mean[order[[name]]$ic_order, order[[name]]$ic_order]
+    prior$prior$FC$Chol$var       <- prior$prior$FC$Chol$var[order[[name]]$ic_order, order[[name]]$ic_order]
+    prior$prior$FC$IW$var         <- prior$prior$FC$IW$var[order[[name]]$ic_order, order[[name]]$ic_order]
+    prior$prior$FC$empirical$var  <- prior$prior$FC$empirical$var[order[[name]]$ic_order, order[[name]]$ic_order]
 
-    # p1 <- plot(prior, what="FC", FC_method = "Chol", stat="mean", labs = labs,
-    #     title = paste0(plot_title, " Cholesky FC Prior"))
-    p1 <- plot_FC_gg(
-      prior$prior$FC$Chol$mean,
-      labs      = labs,
-      lim = c(-0.8, 0.8),
-      # title ="",
-      labs_margin_y = -10,
-      title=paste0(plot_title, " Cholesky FC Prior Mean")
-    ) +
-  theme(
-    legend.title = element_blank(),
-    legend.text  = element_text(size = 14),
-    legend.key.height = unit(2, "cm"), 
-    legend.key.width  = unit(0.6, "cm")
-  )
-    ggplot2::ggsave(file.path(out_dir, paste0(base_name, "_FC_Cholesky_mean.png")), plot = p1, bg = "white")
-
-    # p2 <-plot(prior, what="FC",  FC_method = "Chol", stat="sd", labs = labs, 
-    #     title = paste0(plot_title, " Cholesky FC Prior"))
-    p2 <- plot_FC_gg(
-      sqrt(prior$prior$FC$Chol$var),
-      labs      = labs,
-      lim = c(0, 0.4),
-      # title ="",
-      labs_margin_y = -10,
-      title=paste0(plot_title, " Cholesky FC Prior SD")
-    )  +
-  theme(
-    legend.title = element_blank(),
-    legend.text  = element_text(size = 14),
-    legend.key.height = unit(2, "cm"), 
-    legend.key.width  = unit(0.6, "cm")
-  )
-    ggplot2::ggsave(file.path(out_dir, paste0(base_name, "_FC_Cholesky_sd.png")), plot = p2, bg = "white") 
-
-    # p3 <-plot(prior, what="FC",  FC_method = "IW", stat="mean", labs = labs, 
-    #     title = paste0(plot_title, " Inverse-Wishart FC Prior Mean"))
-    p3 <- plot_FC_gg(
-      prior$prior$FC$IW$mean,
-      labs      = labs,
-      lim = c(-0.8, 0.8),
-      # title ="",
-      labs_margin_y = -10,
-      title=paste0(plot_title, " Inverse-Wishart FC Prior Mean")
-    )  +
-  theme(
-    legend.title = element_blank(),
-    legend.text  = element_text(size = 14),
-    legend.key.height = unit(2, "cm"), 
-    legend.key.width  = unit(0.6, "cm")
-  )
-    ggplot2::ggsave(file.path(out_dir, paste0(base_name, "_FC_IW_mean.png")), plot = p3, bg = "white")
-
-    # p4 <- plot(prior, what="FC",  FC_method = "IW", stat="sd", labs = labs, 
-    #     title = paste0(plot_title, "Inverse-Wishart FC Prior SD"))
-    p4 <- plot_FC_gg(
-      sqrt(prior$prior$FC$IW$var),
-      labs      = labs,
-      lim = c(0, 0.4),
-      # title ="",
-      labs_margin_y = -10,
-      title=paste0(plot_title, " Inverse-Wishart FC Prior SD")
-    )  +
-  theme(
-    legend.title = element_blank(),
-    legend.text  = element_text(size = 14),
-    legend.key.height = unit(2, "cm"), 
-    legend.key.width  = unit(0.6, "cm")
-  )
-    ggplot2::ggsave(file.path(out_dir, paste0(base_name, "_FC_IW_sd.png")), plot = p4, bg = "white")
-
-    # p5 <- plot(prior, what="FC", FC_method = "emp", stat="mean", labs = labs,
-    #     title = paste0(plot_title, " Empirical FC Prior"))
-    p5 <- plot_FC_gg(
-      prior$prior$FC$empirical$mean,
-      labs      = labs,
-      lim = c(-0.8, 0.8),
-      # title ="",
-      labs_margin_y = -10,
-      title=paste0(plot_title, " Empirical FC Prior Mean")
-    )  +
-  theme(
-    legend.title = element_blank(),
-    legend.text  = element_text(size = 14),
-    legend.key.height = unit(2, "cm"), 
-    legend.key.width  = unit(0.6, "cm")
-  )
-    ggplot2::ggsave(file.path(out_dir, paste0(base_name, "_FC_Empirical_mean.png")), plot = p5, bg = "white")
-
-    # p6 <-plot(prior, what="FC",  FC_method = "emp", stat="sd", labs = labs, 
-    #     title = paste0(plot_title, " Empirical FC Prior"))
-    p6 <- plot_FC_gg(
-      sqrt(prior$prior$FC$empirical$var),
-      labs      = labs,
-      lim = c(0, 0.4),
-      # title ="",
-      labs_margin_y = -10,
-      title=paste0(plot_title, " Empirical FC Prior SD")
-    )  +
-  theme(
-    legend.title = element_blank(),
-    legend.text  = element_text(size = 14),
-    legend.key.height = unit(2, "cm"), 
-    legend.key.width  = unit(0.6, "cm")
-  )
-    ggplot2::ggsave(file.path(out_dir, paste0(base_name, "_FC_Empirical_sd.png")), plot = p6, bg = "white") 
-
+    plot_fc_all(prior, encoding, labs, out_dir, plot_title, base_name)
 }
 
 
@@ -232,4 +152,3 @@ for (file in prior_files) {
 #   combined,
 #   width = 16, height = 9, dpi = 300, bg = "white"
 # )
-

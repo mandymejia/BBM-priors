@@ -22,6 +22,8 @@ library(magrittr)
 library(knitr)
 library(BayesBrainMap)
 library(ciftiTools)
+library(fMRItools)
+library(ggplot2)
 wb_path <- "C:/Users/diego/Downloads/workbench-windows64-v2.1.0/workbench/bin_windows64"
 ciftiTools.setOption("wb_path", wb_path)
 #library(osfr)
@@ -54,6 +56,24 @@ default_idx <- list(
 
 # phase encoding direction for BOLD in population priors
 phe = "combined"
+
+# look up table for component names per template (for visualization purposes)
+template_component_lookup <- list(
+  Yeo17 = data.frame(Key = 1:17, Network = c("Visual", "Somatomotor A", "Somatomotor B", "Dorsal Attention A", "Dorsal Attention B", "Ventral Attention A", "Ventral Attention B", "Limbic A", "Limbic B", "Frontoparietal A", "Frontoparietal B", "Default A", "Default B", "Default C", "Default D", "Default E", "Unknown")),
+  GICA15 = data.frame(Key = 1:15, Component = c("Component 1", "Component 2", "Component 3", "Component 4", "Component 5", "Component 6", "Component 7", "Component 8", "Component 9", "Component 10", "Component 11", "Component 12", "Component 13", "Component 14", "Component 15")),
+  GICA25 = data.frame(Key = 1:25, Component = c("Component 1", "Component 2", "Component 3", "Component 4", "Component 5", "Component 6", "Component 7", "Component 8", "Component 9", "Component 10","Component 11","Component 12","Component 13","Component 14","Component 15","Component 16","Component 17","Component 18","Component 19","Component 20","Component 21","Component 22","Component 23","Component 24","Component 25")),
+   MSC = data.frame(Key = c(1:10), Component = c("Motor/Hand/Foot/Face (M1)", 
+                                                  "Auditory (A1)", 
+                                                  "Visual (V1)", 
+                                                  "Fronto-Parietal (FP)", 
+                                                  "Cingulo-Opercular (CO)", 
+                                                  "Default Mode (DMN)", 
+                                                  "Salience (SAL)", 
+                                                  "Dorsal Attention (DAN)", 
+                                                  "Ventral Attention (VAN)", 
+                                                  "Unknown")),
+   PROFUMO = data.frame(Key = c(1:24), Component = paste("PROFUMO Component ", c(1:24)))
+)
 
 ```
 
@@ -229,7 +249,7 @@ This file is included in the *data_OSF* repository under `priors/Yeo17/` and can
 
 ```{r load-prior, eval=FALSE}
 ################################################################################
-# Select tempalte to use for the remainder of this demo
+# Select template to use for the remainder of this demo
 template <- "Yeo17" # options: "Yeo17", "GICA15", "GICA25", "MSC", "PROFUMO"
 gsr_mode <- "noGSR" # options: "GSR", "noGSR"
 ################################################################################
@@ -305,28 +325,50 @@ The plots are saved in: `data/priors/*template_name*/plots_FC/` with filenames i
 
 ```{r plot-FC, eval=FALSE}
 
-  # If Yeo17 template, template_parc_table needs to be updated to only reflect the correct number of labels (17)
-  if (template == "Yeo17") {
-    prior$template_parc_table <- subset(prior$template_parc_table, prior$template_parc_table$Key > 0)
-  }
+# If Yeo17 template, template_parc_table needs to be updated to only reflect the correct number of labels (17)
+# Otherwise, no component name is provided, since this is only for demonstration purposes
+if (template == "Yeo17") {
+  labs <- rownames(subset(prior$template_parc_table, prior$template_parc_table$Key > 0))
+} else {
+  labs <- paste0("IC ", seq(1, ncol(prior$prior$mean)))
+}
 
-    # Plot mean
-    plot(
-      prior,
-      stat = "mean",
-      fname = file.path(dir_data, "priors", template, "plots_FC", paste0("prior_", phe, "_", template, "_", gsr_mode, "_FC_Cholesky_mean.png")),
-      idx = default_idx[[template]],
-      title = paste0(template, "Network Default (#", as.character(default_idx[[template]]),") (mean)")
-    )
+plot_title <- paste0(template, " ", gsr_mode)
 
-    # Plot standard deviation
-    plot(
-      prior,
-      stat = "sd",
-      fname = file.path(dir_data, "priors", template, "plots_FC", paste0("prior_", phe, "_", template, "_", gsr_mode, "_FC_Cholesky_sd.png")),
-      idx = default_idx[[template]],
-      title = paste0(template, "Network Default (#", as.character(default_idx[[template]]),") (sqrt varNN)")
-    )
+FC <- prior$prior$FC
+
+legend_theme <- theme(
+  legend.title = element_blank(),
+  legend.text  = element_text(size = 14),
+  legend.key.height = unit(2, "cm"),
+  legend.key.width  = unit(0.6, "cm")
+)
+
+plots <- list(
+  list(mat = FC$Chol$mean,            lim = c(-0.8, 0.8), suffix = "Cholesky_mean",  title = paste0(plot_title, " Cholesky FC Prior Mean")),
+  list(mat = sqrt(FC$Chol$var),       lim = c(0,    0.4), suffix = "Cholesky_sd",    title = paste0(plot_title, " Cholesky FC Prior SD")),
+  list(mat = FC$IW$mean,              lim = c(-0.8, 0.8), suffix = "IW_mean",        title = paste0(plot_title, " Inverse-Wishart FC Prior Mean")),
+  list(mat = sqrt(FC$IW$var),         lim = c(0,    0.4), suffix = "IW_sd",          title = paste0(plot_title, " Inverse-Wishart FC Prior SD")),
+  list(mat = FC$empirical$mean,       lim = c(-0.8, 0.8), suffix = "Empirical_mean", title = paste0(plot_title, " Empirical FC Prior Mean")),
+  list(mat = sqrt(FC$empirical$var),  lim = c(0,    0.4), suffix = "Empirical_sd",   title = paste0(plot_title, " Empirical FC Prior SD"))
+)
+
+for (p in plots) {
+  plt <- plot_FC_gg(
+    p$mat,
+    labs          = labs,
+    lim           = p$lim,
+    labs_margin_y = -10,
+    title         = p$title
+  ) + legend_theme
+  ggplot2::ggsave(
+    file.path(dir_data, "priors", template, "plots_FC", paste0("prior_", phe, "_", template, "_", gsr_mode, "_FC_", p$suffix, ".png")),
+    plot = plt, bg = "white"
+  )
+}
+
+
+
 ```
 
 #### PNG imgaes (4 per prior)
