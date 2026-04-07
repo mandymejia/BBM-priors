@@ -424,7 +424,7 @@ During this step, an FD summary table is generated with the following columns:
 
 -   session: REST1 or REST2
 
--   encoding: LR or RL
+-   encoding: LR or RL, or combined
 
 -   mean_fd: mean framewise displacement
 
