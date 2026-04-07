@@ -1,3 +1,4 @@
 demo/.Rhistory
 demo/static_html/
 data/priors/prior_*
+data/posteriors/**/*_BBM.rds
