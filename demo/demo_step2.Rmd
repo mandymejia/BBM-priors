@@ -22,6 +22,7 @@ library(magrittr)
 library(knitr)
 library(BayesBrainMap)
 library(ciftiTools)
+library(osfr)
 wb_path <- "C:/Users/diego/Downloads/workbench-windows64-v2.1.0/workbench/bin_windows64"
 ciftiTools.setOption("wb_path", wb_path)
 #library(osfr)
@@ -33,6 +34,31 @@ dir_data <- file.path(dir_project, "data")
 dir_manuscript <- file.path(dir_project, "manuscript")
 # dir_train <- "/path/to/training/BOLD/data"
 # dir_prior <- "/path/where/to/output/prior"
+
+## Start definitions
+# precalculated priors URL look-up table
+prior_url_lookup <- list(
+  Yeo17 = "https://osf.io/k6vx8/files/u2r6e",
+  GICA15 = "https://osf.io/k6vx8/files/2dk58",
+  GICA25 = "https://osf.io/k6vx8/files/2umyv",
+  MSC = "https://osf.io/k6vx8/files/7knmf",
+  PROFUMO = "https://osf.io/k6vx8/files/vsxg7"
+)
+
+# Default mode main component idx per template (for visualization purposes)
+# This can be modified to visualize other networks/components as desired.
+default_idx <- list(
+  Yeo17 = 14, # DefaultA
+  GICA15 = 2, #
+  GICA25 = 3, #
+  MSC = 1,    #
+  PROFUMO = 1 #
+)
+
+# phase encoding direction for BOLD in population priors
+phe = "combined"
+
+
 ```
 
 ## Bayesian Brain Mapping Overview
@@ -118,7 +144,7 @@ This example uses:
 
 -   A prior based on Yeo17 template without global signal regression (GSR) and the `combined` list of subjects.
 
--   One subject’s resting-state data in CIFTI format.
+-   One subject's resting-state data in CIFTI format.
     In this case, we use HCP subject 103111.
 
 ### Load Subject-Level fMRI Data and Prior
@@ -128,14 +154,41 @@ It is shown here for reference only.
 If you have access to HCP data, update `dir_train` and run this block.
 Otherwise, skip ahead — a pre-computed result (`brainMap_1session.rds`) is provided in the repository and loaded below.
 
-```{r warning=FALSE, eval=FALSE}
-# Load population prior
-prior <- readRDS(file.path(dir_data, "priors/Yeo17/prior_combined_Yeo17_noGSR.rds"))
-hcp_subject <- "101006"
+```{r load-prior, eval=FALSE}
+################################################################################
+# Select template to use for the remainder of this demo
+template <- "Yeo17" # options: "Yeo17", "GICA15", "GICA25", "MSC", "PROFUMO"
+gsr_mode <- "noGSR" # options: "GSR", "noGSR"
+################################################################################
+
+osf_url <- prior_url_lookup[[template]]
+
+# check if file exists. If not, download from OSF and load it. If it does, just load it.
+prior_fname <- file.path(dir_data, "priors", template, paste0("prior_", phe, "_", template, "_", gsr_mode,".rds"))
+
+if (!file.exists(prior_fname)) {
+  message("Prior file not found locally. Downloading from OSF...")
+  osf_tibble <- osf_download(osf_retrieve_file(osf_url), path = dirname(prior_fname), verbose = FALSE, progress = TRUE, conflicts = "skip")
+} else {
+  message("Prior file found locally. Loading...")
+}
+
+# regardless, load the prior file
+prior <- readRDS(prior_fname)
+
+# number of components for this template
+Q <- nrow(prior$template_parc_table[prior$template_parc_table$Key > 0, ])
+
+#################################################################################
+# Select subject to use for the remainder of this demo
+# Currently set up for HCP data, but can be adapted to other datasets 
+##################################################################################
+hcp_subject <- "103111"
+subid <- paste0("sub-", hcp_subject)
 session <- "rfMRI_REST1_LR"
-dir_train <- "/LOCAL/HCP_DIR" # replace with your local HCP directory
+dir_train <- "~/hcp" # replace with your local HCP directory
 # Load subject fMRI data (CIFTI format)
-BOLD_1 <- c(file.path(dir_train, hcp_subject, "MINonLinear/Results", session,
+BOLD_1 <- c(file.path(dir_train, hcp_subject, "MNINonLinear/Results", session,
                     paste0(session, "_Atlas_MSMAll_hp2000_clean.dtseries.nii")))
 
 ```
@@ -157,52 +210,63 @@ bMap_1 <- fit_BBM(
   prior = prior,
   TR = 0.72,
   drop_first = 15,
-  GSR = FALSE
+  GSR = FALSE,
+  usePar = FALSE
   )
-```
 
-```{r, eval=FALSE, echo=FALSE}
 # Only run if you ran fit_BBM() above with your own HCP data
-saveRDS(bMap_1, file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "sub-103111_BBM.rds"))
+saveRDS(bMap_1, file.path(dir_data, "posteriors", subid, template, paste0(subid, "_BBM.rds")))
 ```
 
 Or load the pre-computed brain map included in the *data_OSF* repository:
 
 ```{r load-brainmap, eval=FALSE, echo=TRUE}
-# download the prior from OSF and place it in data/priors/Yeo17/ before running this code
+# download the prior from OSF and place it in data/priors/<template>/ before running this code
 osf_url <- "https://osf.io/k6vx8/files/qswaz"
-posterior_download <- osf_download(osf_retrieve_file(osf_url), path = file.path(dir_data, "posteriors", "sub-103111", "Yeo17"))
 
-bMap_1 <- readRDS(file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "sub-103111_BBM.rds"))
+# check if file exists. If not, download from OSF and load it. If it does, just load it.
+posterior_fname <- file.path(dir_data, "posteriors", subid, template, paste0(subid, "_BBM.rds"))
+
+if (!file.exists(posterior_fname)) {
+  message("Posterior file not found locally. Downloading from OSF...")
+  osf_tibble <- osf_download(osf_retrieve_file(osf_url), path = file.path(dir_data, "posteriors", subid, template), verbose = FALSE, progress = TRUE, conflicts = "skip")
+} else {
+  message("Posterior file found locally. Loading...")
+}
+
+# regardless, load the prior file
+bMap_1 <- readRDS(posterior_fname)
+
+
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
-for (i in 1:17) {
+for (i in seq_len(Q)) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
-  title <- paste0("Yeo 17 ", label_name, " Mean (1 session)") 
-  fname <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
-                     paste0("posterior_Yeo17_", label_name))
+  title <- paste0(template, " ", label_name, " Mean (1 session)")
+  fname <- file.path(dir_data, "posteriors", subid, template, "posterior_plots",
+                     paste0("posterior_", template, "_", label_name))
   plot(bMap_1, idx = i, stat = "mean", title = title,
-     fname_suffix="idx", fname=fname, zlim=c(-0.3, 0.3)) 
+     fname_suffix="idx", fname=fname, zlim=c(-0.3, 0.3))
 }
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
-for (i in 1:17) {
+for (i in seq_len(Q)) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
-  title <- paste0("Yeo 17 ", label_name, " SE (1 session)")  
-  fname <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
-                     paste0("posterior_Yeo17_", label_name))
+  title <- paste0(template, " ", label_name, " SE (1 session)")
+  fname <- file.path(dir_data, "posteriors", subid, template, "posterior_plots",
+                     paste0("posterior_", template, "_", label_name))
   plot(bMap_1, idx = i, stat = "se", title = title,
-     fname_suffix="idx", fname=fname, zlim=c(0.015, 0.023)) 
+     fname_suffix="idx", fname=fname, zlim=c(0.015, 0.023))
 }
 ```
 
 ```{r fig.show='hold', out.width='50%', echo=FALSE}
-p_mean_1 <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
-                     "posterior_Yeo17_DefaultA_mean.png")
-p_se_1   <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "posterior_plots",
-                     "posterior_Yeo17_DefaultA_se.png")
+p_mean_1 <- file.path(dir_data, "posteriors", subid, template, "posterior_plots",
+                     paste0("posterior_", template, "_DefaultA_mean.png"))
+p_se_1   <- file.path(dir_data, "posteriors", subid, template, "posterior_plots",
+                     paste0("posterior_", template, "_DefaultA_se.png"))
 
 knitr::include_graphics(p_mean_1)
 knitr::include_graphics(p_se_1)
@@ -226,40 +290,40 @@ First, we compute engagements from the four-session brain map,
 eng <- engagements(
   bMap = bMap_1,
   method_p = 'bonferroni',
-  z=5
+  z=3
   )
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
 # Only run if you computed eng yourself above
-saveRDS(eng, file.path(dir_data, "outputs", "brain_map", "Yeo17", "engagements_1session.rds"))
+saveRDS(eng, file.path(dir_data, "posteriors", subid, template, "engagements_1session.rds"))
 ```
 
 Or load the pre-computed engagement map included in the repository:
 
 ```{r load-eng, eval=TRUE, echo=TRUE}
-eng <- readRDS(file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagements_1session.rds"))
+eng <- readRDS(file.path(dir_data, "posteriors", subid, template, "engagements_1session.rds"))
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
-for (i in 1:17) {
+for (i in seq_len(Q)) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
-  title <- paste0("Yeo 17 ", label_name, " Engagements")  
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17",
-                     paste0("default_subject_Yeo17_", label_name))
+  title <- paste0(template, " ", label_name, " Engagements")
+  fname <- file.path(dir_data, "posteriors", subid, template,
+                     paste0("default_subject_", template, "_", label_name))
   plot(eng, idx = i, stat = "engaged", title = title,
-     fname_suffix="idx", fname=fname) 
+     fname_suffix="idx", fname=fname)
 }
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
-for (i in 1:17) {
+for (i in seq_len(Q)) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
-  title <- paste0("Yeo 17 ", label_name, " Thresholded Map (z=2)")  
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17",
-                     paste0("default_thresholded_subject_Yeo17_", label_name))
+  title <- paste0(template, " ", label_name, " Thresholded Map (z=2)")
+  fname <- file.path(dir_data, "posteriors", subid, template,
+                     paste0("default_thresholded_subject_", template, "_", label_name))
   plot(eng, idx = i, stat = "engaged", title = title,
-     fname_suffix="idx", fname=fname) 
+     fname_suffix="idx", fname=fname)
 }
 ```
 
@@ -271,38 +335,38 @@ Second, we compute engagements with z = 1, 3, 5 while keeping all other paramete
 eng_multipleZ <- engagements(
   bMap = bMap_1,
   method_p = 'bonferroni',
-  z = c(1,5)
+  z = c(1,3,5)
   )
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
 # Only run if you computed eng_multipleZ yourself above
-saveRDS(eng_multipleZ, file.path(dir_data, "outputs", "brain_map", "Yeo17", "engagements_1session_multipleZ.rds"))
+saveRDS(eng_multipleZ, file.path(dir_data, "posteriors", subid, template, "engagements_1session_multipleZ.rds"))
 ```
 
 Or load the pre-computed multiple-z engagement maps included in the repository:
 
 ```{r load-eng-multipleZ, eval=TRUE, echo=TRUE}
-eng_multipleZ <- readRDS(file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagements_1session_multipleZ.rds"))
+eng_multipleZ <- readRDS(file.path(dir_data, "posteriors", subid, template, "engagements_1session_multipleZ.rds"))
 ```
 
 ```{r, eval=FALSE, echo=FALSE}
-for (i in 1:17) {
+for (i in seq_len(Q)) {
   label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i]
-  title <- paste0("Yeo 17 ", label_name, " Engagements")  
-  fname <- file.path(dir_data, "outputs", "brain_map", "Yeo17",
-                     paste0("subject_Yeo17_", label_name))
+  title <- paste0(template, " ", label_name, " Engagements")
+  fname <- file.path(dir_data, "posteriors", subid, template,
+                     paste0("subject_", template, "_", label_name))
   plot(eng_multipleZ, idx = i, stat = "engaged", title = title,
-     fname_suffix="idx", fname=fname) 
+     fname_suffix="idx", fname=fname)
 }
 ```
 
 ```{r fig.show='hold', out.width=c('36%','12%','36%','12%'), echo=FALSE}
-first <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "default_subject_Yeo17_DefaultA_engaged.png")
-second   <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "subject_Yeo17_DefaultA_engaged.png")
+first <- file.path(dir_data, "posteriors", subid, template, "engagement_plots", paste0("default_subject_", template, "_DefaultA_engaged.png"))
+second   <- file.path(dir_data, "posteriors", subid, template, "engagement_plots", paste0("subject_", template, "_DefaultA_engaged.png"))
 
-first_legend <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "default_subject_Yeo17_DefaultA_engaged_legend.png")
-second_legend <- file.path(dir_data, "posteriors", "sub-103111", "Yeo17", "engagement_plots", "subject_Yeo17_DefaultA_engaged.png")
+first_legend <- file.path(dir_data, "posteriors", subid, template, "engagement_plots", paste0("default_subject_", template, "_DefaultA_engaged_legend.png"))
+second_legend <- file.path(dir_data, "posteriors", subid, template, "engagement_plots", paste0("subject_", template, "_DefaultA_engaged.png"))
 
 knitr::include_graphics(first)
 knitr::include_graphics(first_legend)
