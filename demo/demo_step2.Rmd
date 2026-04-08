@@ -22,11 +22,8 @@ library(magrittr)
 library(knitr)
 library(BayesBrainMap)
 library(ciftiTools)
-library(osfr)
 wb_path <- "C:/Users/diego/Downloads/workbench-windows64-v2.1.0/workbench/bin_windows64"
 ciftiTools.setOption("wb_path", wb_path)
-#library(osfr)
-#osf_repo <- osf_retrieve_node("k6vx8")
 
 # setup environment
 dir_project <- file.path(getwd(), "..") # Path to GitHub folder
@@ -36,6 +33,10 @@ dir_manuscript <- file.path(dir_project, "manuscript")
 # dir_prior <- "/path/where/to/output/prior"
 
 ## Start definitions
+template = "Yeo17" # This can be changed later.
+gsr_mode = "noGSR" # This can be changed later.
+hcp_subject <- "103111" # This can be changed later.
+subid <- paste0("sub-", hcp_subject) # This can be changed later.
 # precalculated priors URL look-up table
 prior_url_lookup <- list(
   Yeo17 = "https://osf.io/k6vx8/files/u2r6e",
@@ -154,7 +155,10 @@ It is shown here for reference only.
 If you have access to HCP data, update `dir_train` and run this block.
 Otherwise, skip ahead — a pre-computed result (`brainMap_1session.rds`) is provided in the repository and loaded below.
 
+For the code below to run, OSFR needs to be installed to fetch the priors and example posterior files. `install.packages("osfr")`.
+
 ```{r load-prior, eval=FALSE}
+library(osfr)
 ################################################################################
 # Select template to use for the remainder of this demo
 template <- "Yeo17" # options: "Yeo17", "GICA15", "GICA25", "MSC", "PROFUMO"

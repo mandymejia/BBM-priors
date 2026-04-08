@@ -35,6 +35,8 @@ dir_data <- file.path(dir_project, "data")
 dir_manuscript <- file.path(dir_project, "manuscript")
 
 ## Start definitions 
+template = "Yeo17" # This can be changed later.
+gsr_mode = "noGSR" # This can be changed later.
 # precalculated priors URL look-up table
 prior_url_lookup <- list(
   Yeo17 = "https://osf.io/k6vx8/files/u2r6e",
