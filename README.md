@@ -34,7 +34,7 @@ install.packages("osfr")
 ```
 
 Important notes:
-- Demo code is educational by default; many heavy chunks are marked `eval=FALSE`.
+- Demo code is educational by default; many heavy chunks are marked `eval=FALSE`. By default, knitting the demos will use the Yeo17 template and the plots saved within this repo.
 - You can run most of the demo without estimating priors from scratch by downloading priors/posteriors from OSF.
 
 ### 3) I want to run and modify the full pipeline on my own dataset
