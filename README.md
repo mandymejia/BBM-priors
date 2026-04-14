@@ -9,7 +9,7 @@ Preprint: https://doi.org/10.48550/arXiv.2602.01551
 Public data assets (priors, example posteriors):  
 https://osf.io/k6vx8/files/osfstorage
 
-## Start Here: Howgoogle scholar to use this repository
+## Start Here: How to use this repository
 
 ### Option 1: I only want to read examples and understand the workflow
 Open the rendered demos (no local run required):
