@@ -226,7 +226,7 @@ Or load the pre-computed brain map included in the *data_OSF* repository:
 
 ```{r load-brainmap, eval=FALSE, echo=TRUE}
 # download the prior from OSF and place it in data/priors/<template>/ before running this code
-osf_url <- "https://osf.io/k6vx8/files/qswaz"
+osf_url <- "https://osf.io/zdfkt/files/un9jc"
 
 # check if file exists. If not, download from OSF and load it. If it does, just load it.
 posterior_fname <- file.path(dir_data, "posteriors", subid, template, paste0(subid, "_BBM.rds"))
