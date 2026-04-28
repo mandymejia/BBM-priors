@@ -19,3 +19,7 @@ An analogous process was performed for the MSC parcellation, available for downl
 ## HCP (GICA)
 
 HCP group ICA functional maps can be obtained from the HCP S1200 release, available within [ConnectomeDB](https://balsa.wustl.edu) after signing a Data User Agreement. Files should be placed in this directory following the naming scheme `GICA<N>.dscalar.nii`, where `N` is the number of ICs (e.g. `GICA15.dscalar.nii`, `GICA25.dscalar.nii`, `GICA50.dscalar.nii`).
+
+## PNC (Group Atlas)
+
+Functional topography map derived from non-negative matrix factorization (NMF) of 693 youths aged 8–23 years as part of the Philadelphia Neurodevelopmental Cohort (PNC) with over 27 min of high-quality fMRI data. See [Individual Variation in Functional Topography of Association Networks in Youth (Cui et al.)](https://doi.org/10.1016/j.neuron.2020.01.029) for details.
