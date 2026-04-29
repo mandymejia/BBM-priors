@@ -201,3 +201,26 @@ best_match <- apply(dice_mat, 1, which.max)
 ordered_idx <- order(best_match)
 
 order[[basename]] <- list(ic_order = ordered_idx)
+
+# PNC #####################################################################
+pnc <- readRDS(file.path(dir_data, "templates", "PNC_Group_Atlas_merged.rds"))
+basename = "PNC"
+
+pnc_labels <- c("DefaultA", "SomMotA", "FrontParA", "SomMotB", "DorsAttnA",
+                "VisPeri", "VentAttnA", "DefaultB", "VentAttnB", "VisCent",
+                "SomMotC", "DefaultC", "SomMotD", "DorsAttnB", "FrontParB",
+                "Auditory", "FrontParC")
+
+matrix_input <- rbind(pnc$data$cortex_left, pnc$data$cortex_right)
+
+parcellation <- threshold_maps(matrix_input, thr = colMeans(matrix_input) + 2 * apply(matrix_input, 2, sd))
+
+one_hot <- parcellation
+
+dice_mat <- dice_coef(one_hot, yeo_mega)
+
+best_match <- apply(dice_mat, 1, which.max)
+
+ordered_idx <- order(best_match)
+
+order[[basename]] <- list(ic_order = ordered_idx)

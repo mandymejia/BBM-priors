@@ -1,6 +1,6 @@
 # Plots both the mean and standard deviation components for all priors
 
-prior_files <- list.files(file.path(dir_data, "priors"), recursive = TRUE, full.names = TRUE)
+prior_files <- list.files(file.path(dir_data, "priors"), recursive = TRUE, full.names = TRUE, pattern = "*GSR.rds")
 
 get_prior_title <- function(base_name, i, prior, encoding, gsr_status) {
 
@@ -12,7 +12,28 @@ get_prior_title <- function(base_name, i, prior, encoding, gsr_status) {
     return(paste0("MSC Network ", label_name, " (#", i-1, ")"))
   } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
     return(paste0("PROFUMO Network # ", i))
-  }
+  } else if (grepl("PNC", base_name, ignore.case = TRUE)) {
+    fname <- file.path(dir_data, "priors", parcellation, "priors_plots", paste0(base_name, "_IC", i))
+    label_name <- c("DefaultA",
+                    "SomMotA",
+                    "FrontParA",
+                    "SomMotB",
+                    "DorsAttnA",
+                    "VisPeri",
+                    "VentAttnA",
+                    "DefaultB",
+                    "VentAttnB",
+                    "VisCent",
+                    "SomMotC",
+                    "DefaultC",
+                    "SomMotD",
+                    "DorsAttnB",
+                    "FrontParB",
+                    "Auditory",
+                    "FrontParC"
+    )
+    return(paste0("PNC Network ", label_name[i], " (#", i, ")"))
+  } 
   ic_match <- regmatches(base_name, regexpr("GICA\\d+", base_name))
 
   nIC <- as.numeric(gsub("GICA", "", ic_match))
@@ -48,7 +69,8 @@ for (file in prior_files) {
     } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
       # label_name <- rownames(prior$template_parc_table)[prior$template_parc_table$Key == i-1]  
       fname <- file.path(dir_data, "priors", parcellation, "priors_plots", paste0(base_name, "_", i))
-      print(fname)
+      # write label name into tempalte_parc_table, to write plots.
+      prior$template_parc_table$Label <- label_name
     } else {  
       fname <- file.path(dir_data, "priors", parcellation, "priors_plots",  paste0(base_name, "_IC", i))
     }
@@ -59,6 +81,7 @@ for (file in prior_files) {
     }
 
     title <- get_prior_title(base_name, i, prior, encoding, gsr_status)
+    
     cat("Plotting prior ", i, "\n")
 
     # Plot mean

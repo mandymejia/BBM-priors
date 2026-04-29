@@ -12,25 +12,30 @@ library(fMRItools)
 
 library(ggplot2)
 
-prior_files <- list.files(file.path(dir_data, "priors"), recursive = TRUE, full.names = TRUE)
+prior_files <- list.files(file.path(dir_data, "priors"), recursive = TRUE, full.names = TRUE, pattern = "*GSR.rds")
 
 source(file.path(dir_project, "src", "06_best_match_IC.R"))
 
-get_prior_title <- function(base_name, encoding) {
-  gsr <- if (grepl("noGSR", base_name)) "noGSR" else "GSR"
 
+get_prior_title <- function(base_name, i, prior, encoding, gsr_status) {
+  
+  gsr <- if (grepl("noGSR", base_name)) "noGSR" else "GSR"
+  
   if (grepl("Yeo17", base_name, ignore.case = TRUE)) {
     return(paste0("Yeo17 ", gsr))
   } else if (grepl("MSC", base_name, ignore.case = TRUE)) {
     return(paste0("MSC ", gsr))
   } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
     return(paste0("PROFUMO ", gsr))
-  }
-
+  } else if (grepl("PNC", base_name, ignore.case = TRUE)) {
+    return(paste0("PNC ", gsr))
+  } 
   ic_match <- regmatches(base_name, regexpr("GICA\\d+", base_name))
+  
   nIC <- as.numeric(gsub("GICA", "", ic_match))
-
-  paste0("GICA ", nIC, " ", gsr)
+  title_str <- paste0("GICA ", nIC, " - Component ", i)
+  
+  return(title_str)
 }
 
 plot_fc_all <- function(template, encoding, labs, out_dir, plot_title, base_name) {
@@ -92,6 +97,9 @@ for (file in prior_files) {
     } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
       labs <- paste0("Network ", 1:12)
       name = "PROFUMO"
+    } else if (grepl("PNC", base_name, ignore.case = TRUE)) {
+      labs <- paste0("PNC ", pnc_labels)
+      name = "PNC"
     } else {
       labs <- paste0("IC", 1:dim(prior$prior$mean)[2])
     }

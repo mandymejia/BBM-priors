@@ -23,7 +23,7 @@ library(tidyverse)       # version: 2.0.0
 library(purrr)           # version: 0.2.0
 
 # Set CIFTI Workbench path
-wb_path <- "/Applications/wb_view.app/Contents/usr/bin"
+wb_path <- "~/workbench-linux64-v2.1.0/workbench/bin_linux64" # Path to Workbench command, e.g. "~/workbench-command" or "C:/path/to/workbench-command.exe"
 # Check if the path exists, otherwise throw an error
 if (!file.exists(wb_path)) {
   stop(paste("Workbench path does not exist:", wb_path))
