@@ -27,8 +27,8 @@ get_prior_title <- function(base_name, i, prior, encoding, gsr_status) {
     return(paste0("MSC ", gsr))
   } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
     return(paste0("PROFUMO ", gsr))
-  } else if (grepl("PNC", base_name, ignore.case = TRUE)) {
-    return(paste0("PNC ", gsr))
+  } else if (grepl("NMF", base_name, ignore.case = TRUE)) {
+    return(paste0("NMF ", gsr))
   } 
   ic_match <- regmatches(base_name, regexpr("GICA\\d+", base_name))
   
@@ -97,9 +97,9 @@ for (file in prior_files) {
     } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
       labs <- paste0("Network ", 1:12)
       name = "PROFUMO"
-    } else if (grepl("PNC", base_name, ignore.case = TRUE)) {
-      labs <- paste0("PNC ", pnc_labels)
-      name = "PNC"
+    } else if (grepl("NMF", base_name, ignore.case = TRUE)) {
+      labs <- paste0("NMF ", pnc_labels)
+      name = "NMF"
     } else {
       labs <- paste0("IC", 1:dim(prior$prior$mean)[2])
     }

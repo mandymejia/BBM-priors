@@ -12,7 +12,7 @@ get_prior_title <- function(base_name, i, prior, encoding, gsr_status) {
     return(paste0("MSC Network ", label_name, " (#", i-1, ")"))
   } else if (grepl("PROFUMO", base_name, ignore.case = TRUE)) {
     return(paste0("PROFUMO Network # ", i))
-  } else if (grepl("PNC", base_name, ignore.case = TRUE)) {
+  } else if (grepl("NMF", base_name, ignore.case = TRUE)) {
     fname <- file.path(dir_data, "priors", parcellation, "priors_plots", paste0(base_name, "_IC", i))
     label_name <- c("DefaultA",
                     "SomMotA",
@@ -32,7 +32,7 @@ get_prior_title <- function(base_name, i, prior, encoding, gsr_status) {
                     "Auditory",
                     "FrontParC"
     )
-    return(paste0("PNC Network ", label_name[i], " (#", i, ")"))
+    return(paste0("NMF Network ", label_name[i], " (#", i, ")"))
   } 
   ic_match <- regmatches(base_name, regexpr("GICA\\d+", base_name))
 

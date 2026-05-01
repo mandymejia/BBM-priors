@@ -1,7 +1,7 @@
 demo/.Rhistory
 demo/static_html/
 data/priors/prior_*
-data/priors/PNC
+data/priors/NMF
 data/posteriors/**/*_BBM.rds
 # ignore generate plots for posteriors
 data/posteriors/sub-*/*/posterior_plots/*

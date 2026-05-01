@@ -4,7 +4,7 @@ library(ciftiTools)
 # Replace the path below with the actual location on your system.
 ciftiTools.setOption("wb_path", "C:/Users/diego/Downloads/workbench-windows64-v2.1.0/workbench/bin_windows64")
 
-atlas_dir <- file.path("C:/Users/diego/Documents/GitHub/NMF-prior", "PNC Group Atlas")
+atlas_dir <- file.path("C:/Users/diego/Documents/GitHub/NMF-prior", "NMF Group Atlas")
                        
 # List dscalar files and sort in natural numeric order (PFN1 … PFN17)
 fnames <- list.files(atlas_dir, pattern = "PFN\\d+_soft_parcel\\.dscalar\\.nii$",
@@ -44,7 +44,7 @@ xifti_merged <- do.call(merge_xifti, xifti_list)
 xifti_merged$meta$cifti$names <- pfn_names
 
 # Save the merged dscalar
-#write_cifti(xifti_merged, "PNC_Group_Atlas_merged.dscalar.nii")
+#write_cifti(xifti_merged, "NMF_Group_Atlas_merged.dscalar.nii")
 
 # Save as rds
-saveRDS(xifti_merged, "PNC_Group_Atlas_merged.rds")
+saveRDS(xifti_merged, "NMF_Group_Atlas_merged.rds")

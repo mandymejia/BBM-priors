@@ -202,9 +202,9 @@ ordered_idx <- order(best_match)
 
 order[[basename]] <- list(ic_order = ordered_idx)
 
-# PNC #####################################################################
-pnc <- readRDS(file.path(dir_data, "templates", "PNC_Group_Atlas_merged.rds"))
-basename = "PNC"
+# NMF #####################################################################
+pnc <- readRDS(file.path(dir_data, "templates", "NMF_Group_Atlas_merged.rds"))
+basename = "NMF"
 
 pnc_labels <- c("DefaultA", "SomMotA", "FrontParA", "SomMotB", "DorsAttnA",
                 "VisPeri", "VentAttnA", "DefaultB", "VentAttnB", "VisCent",
